@@ -53,6 +53,8 @@ gradlew.bat test
 
 **Request:**
 
+### TYPE1: Only for EUR, requires `details`
+
 ```json
 {
   "amount": 150.00,
@@ -61,6 +63,31 @@ gradlew.bat test
   "creditorIban": "LT222222222222222222",
   "type": "TYPE1",
   "details": "invoice #123"
+}
+```
+
+### TYPE2: Only for USD, `details` is optional
+
+```json
+{
+  "amount": 2500.00,
+  "currency": "USD",
+  "debtorIban": "LT333333333333333333",
+  "creditorIban": "LT444444444444444444",
+  "type": "TYPE2"
+}
+```
+
+### TYPE3: EUR or USD, requires `creditorBankBic`
+
+```json
+{
+  "amount": 500.00,
+  "currency": "EUR",
+  "debtorIban": "LT555555555555555555",
+  "creditorIban": "LT666666666666666666",
+  "type": "TYPE3",
+  "creditorBankBic": "BANKLT21"
 }
 ```
 
