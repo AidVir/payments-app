@@ -21,7 +21,7 @@ A Spring Boot REST API for managing payments as a task for Baltic Amadeus.
 
 ```bash
 git clone https://github.com/AidVir/payments-app.git
-cd payments
+cd payments-app
 ./gradlew bootRun
 ```
 
@@ -35,7 +35,7 @@ cd payments
 
 ```cmd
 git clone https://github.com/AidVir/payments-app.git
-cd payments
+cd payments-app
 gradlew.bat bootRun
 ```
 
