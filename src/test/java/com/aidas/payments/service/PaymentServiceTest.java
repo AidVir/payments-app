@@ -1,7 +1,9 @@
 package com.aidas.payments.service;
 
+import com.aidas.payments.dto.NotificationResponse;
 import com.aidas.payments.dto.PaymentRequest;
 import com.aidas.payments.dto.PaymentResponse;
+import com.aidas.payments.entity.NotificationLog;
 import com.aidas.payments.entity.Payment;
 import com.aidas.payments.enums.Currency;
 import com.aidas.payments.enums.PaymentType;
@@ -25,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 class PaymentServiceTest {
 
-    private PaymentRepository repository;
+    private PaymentRepository paymentRepository;
     private PaymentHandlerFactory handlerFactory;
     private AsyncTaskService asyncService;
     private PaymentService service;
@@ -34,12 +36,13 @@ class PaymentServiceTest {
 
     @BeforeEach
     void setup() {
-        repository = mock(PaymentRepository.class);
+        paymentRepository = mock(PaymentRepository.class);
         handlerFactory = mock(PaymentHandlerFactory.class);
         asyncService = mock(AsyncTaskService.class);
         PaymentMapper mapper = mock(PaymentMapper.class);
+        NotificationLogService notificationLogService = mock(NotificationLogService.class);
 
-        service = new PaymentServiceImpl(repository, handlerFactory, asyncService, mapper);
+        service = new PaymentService(paymentRepository, handlerFactory, asyncService, mapper, notificationLogService);
     }
 
     @Test
@@ -64,7 +67,7 @@ class PaymentServiceTest {
                 .build();
 
         when(handlerFactory.getHandler(PaymentType.TYPE1)).thenReturn(handler);
-        when(repository.save(any())).thenReturn(entity);
+        when(paymentRepository.save(any())).thenReturn(entity);
 
         Long id = service.createPayment(request, "1.2.3.4");
 
@@ -87,13 +90,13 @@ class PaymentServiceTest {
                 .createdAt(now.minusHours(3))
                 .build();
 
-        when(repository.findById(1L)).thenReturn(Optional.of(payment));
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
         when(handlerFactory.getHandler(PaymentType.TYPE2)).thenReturn(handler);
         when(handler.calculateCancellationFee(payment)).thenReturn(BigDecimal.valueOf(0.30));
 
         service.cancelPayment(1L);
 
-        verify(repository).save(argThat(saved ->
+        verify(paymentRepository).save(argThat(saved ->
                 saved.isCancelled() &&
                         saved.getCancellationFee().compareTo(BigDecimal.valueOf(0.30)) == 0));
     }
@@ -107,7 +110,7 @@ class PaymentServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        when(repository.findById(1L)).thenReturn(Optional.of(payment));
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
         assertThatThrownBy(() -> service.cancelPayment(1L))
                 .isInstanceOf(BusinessException.class)
@@ -122,7 +125,7 @@ class PaymentServiceTest {
                 .createdAt(LocalDateTime.now().minusDays(1))
                 .build();
 
-        when(repository.findById(1L)).thenReturn(Optional.of(payment));
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
         assertThatThrownBy(() -> service.cancelPayment(1L))
                 .isInstanceOf(BusinessException.class)
@@ -134,7 +137,7 @@ class PaymentServiceTest {
         Payment p1 = Payment.builder().amount(BigDecimal.valueOf(100)).build();
         Payment p2 = Payment.builder().amount(BigDecimal.valueOf(200)).build();
 
-        when(repository.findByAmountRange(BigDecimal.valueOf(150), BigDecimal.valueOf(300)))
+        when(paymentRepository.findByAmountRange(BigDecimal.valueOf(150), BigDecimal.valueOf(300)))
                 .thenReturn(List.of(p2));
 
         List<Payment> result = service.getPaymentsByAmountRange(
@@ -155,7 +158,7 @@ class PaymentServiceTest {
                 .createdAt(LocalDateTime.now().minusHours(2))
                 .build();
 
-        when(repository.findById(10L)).thenReturn(Optional.of(payment));
+        when(paymentRepository.findById(10L)).thenReturn(Optional.of(payment));
 
         PaymentResponse response = service.getPaymentById(10L);
 
@@ -166,10 +169,34 @@ class PaymentServiceTest {
 
     @Test
     void shouldThrowWhenPaymentNotFound() {
-        when(repository.findById(404L)).thenReturn(Optional.empty());
+        when(paymentRepository.findById(404L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getPaymentById(404L))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void shouldReturnNotificationInfo() {
+        NotificationLog log = NotificationLog.builder()
+                .id(99L)
+                .success(true)
+                .targetService("https://service-type1/notify")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        Payment payment = Payment.builder()
+                .id(1L)
+                .notificationLog(log)
+                .build();
+
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
+
+        NotificationResponse result = service.getNotificationByPaymentId(1L);
+
+        assertThat(result.getPaymentId()).isEqualTo(1L);
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getTargetService()).isEqualTo("https://service-type1/notify");
+        assertThat(result.getTimestamp()).isEqualTo(log.getTimestamp());
     }
 }
 

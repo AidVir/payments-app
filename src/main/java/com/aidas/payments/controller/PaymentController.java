@@ -1,5 +1,6 @@
 package com.aidas.payments.controller;
 
+import com.aidas.payments.dto.NotificationResponse;
 import com.aidas.payments.dto.PaymentRequest;
 import com.aidas.payments.dto.PaymentResponse;
 import com.aidas.payments.entity.Payment;
@@ -47,5 +48,10 @@ public class PaymentController {
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
         return ResponseEntity.ok(paymentService.getPaymentById(id));
+    }
+
+    @GetMapping("/{id}/notification")
+    public ResponseEntity<NotificationResponse> getNotificationByPaymentId(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.getNotificationByPaymentId(id));
     }
 }

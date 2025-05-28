@@ -2,7 +2,6 @@ package com.aidas.payments.service;
 
 import com.aidas.payments.dto.CountryResponse;
 import com.aidas.payments.entity.NotificationLog;
-import com.aidas.payments.repository.NotificationLogRepository;
 import com.aidas.payments.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import java.util.Optional;
 public class AsyncTaskService {
 
     private final PaymentRepository repository;
-    private final NotificationLogRepository logRepo;
     private final RestTemplate rest;
 
     public void resolveCountry(String ip, Long paymentId) {
