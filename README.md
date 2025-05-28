@@ -138,7 +138,8 @@ gradlew.bat test
 
 ## 🔧 Configuration
 
-You can override notification URLs via `application.properties` or environment variables.
+You can override notification URLs via `application.properties` file which is located in
+`payments-app/src/main/resources/application.properties`
 
 **Example (`application.properties`):**
 
