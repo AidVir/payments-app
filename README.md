@@ -47,11 +47,10 @@ gradlew.bat test
 
 ## 📦 API Endpoints
 
-### 0. All of the requests below can be accessed by joining Postman workspace below
+### 0. All of the requests below can be accessed by joining Postman workspace below :
 
-*
-*[Join Postman workspace here](https://app.getpostman.com/join-team?invite_code=b0ec1e37640cd882db1543b857cd2ec2cf1802a931ce7ba94a117843cc398147&target_code=22f535309955f689f779d81cc3093aab)
-**
+[Join Postman workspace here](https://app.getpostman.com/join-team?invite_code=b0ec1e37640cd882db1543b857cd2ec2cf1802a931ce7ba94a117843cc398147&target_code=22f535309955f689f779d81cc3093aab)
+
 --- 
 
 ### 1. Create a Payment
