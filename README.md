@@ -45,8 +45,6 @@ gradlew.bat bootRun
 gradlew.bat test 
 ```
 
----
-
 ## 📦 API Endpoints
 
 ### 1. Create a Payment
